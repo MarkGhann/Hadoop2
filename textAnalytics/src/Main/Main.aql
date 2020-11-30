@@ -1,0 +1,36 @@
+module Main;
+
+import module Electricity;  
+
+create view Countries as
+extract regex /Geography (\w+( \w+)?)/ on Doc.text
+	return group 1 as country
+from Document Doc;
+
+create view Capitals as
+extract regex /Capital: {1,}(\w+( \w+)?)/ on Doc.text
+	return group 1 as capital
+from Document Doc;
+
+create view Answ as
+extract
+	pattern (<countries.country>)   <Token>{90,1400}
+	        (<capitals.capital>)    <Token>{1,20}
+	        (<products.product>)    <Token>{1,60}
+	        (<consumpts.consumpt>)  <Token>{1,20}
+	        (<exports.export_t>)    <Token>{1,20}
+	        (<imports.import_t>)
+	return	group 1 as country
+	 and	group 2 as capital
+	 and	group 3 as product
+	 and	group 4 as consumpt
+	 and	group 5 as export_t
+	 and	group 6 as import_t
+from Countries countries,
+     Capitals capitals,
+     Electricity.Production products,
+     Electricity.Consumption consumpts,
+     Electricity.Export exports,
+     Electricity.Import imports;
+
+output view Answ;

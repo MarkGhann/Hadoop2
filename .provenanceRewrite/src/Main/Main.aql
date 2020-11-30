@@ -1,0 +1,85 @@
+module Main;
+
+
+import module Electricity;
+
+
+create view Countries as
+  extract
+    AutoID() as __auto__id,
+    'STMT_TYPE_EXTRACT_REGEX' as __stmt__type,
+    -1 as Document_____sep_____Doc____id,
+    regex
+      /Geography (\w+( \w+)?)/
+    with flags 
+      'DOTALL'
+    on Doc.text
+    return
+    group 1 as country
+
+  from
+    Document Doc;
+output view Countries;
+
+create view Capitals as
+  extract
+    AutoID() as __auto__id,
+    'STMT_TYPE_EXTRACT_REGEX' as __stmt__type,
+    -1 as Document_____sep_____Doc____id,
+    regex
+      /Capital: {1,}(\w+( \w+)?)/
+    with flags 
+      'DOTALL'
+    on Doc.text
+    return
+    group 1 as capital
+
+  from
+    Document Doc;
+output view Capitals;
+
+create view Answ as
+  select
+    Op.country as country,
+    Op.capital as capital,
+    Op.product as product,
+    Op.consumpt as consumpt,
+    Op.export_t as export_t,
+    Op.import_t as import_t,
+    AutoID() as __auto__id
+  from
+    __Base__Main__Answ__Temp Op;
+output view Answ;
+
+
+
+create view __Base__Main__Answ__Temp as
+  extract
+    pattern
+(          <countries.country>) 
+<Token>{90,1400} 
+(          <capitals.capital>) 
+<Token>{1,20} 
+(          <products.product>) 
+<Token>{1,60} 
+(          <consumpts.consumpt>) 
+<Token>{1,20} 
+(          <exports.export_t>) 
+<Token>{1,20} 
+(          <imports.import_t>)
+    return
+      group 1 as "country" and 
+      group 2 as "capital" and 
+      group 3 as "product" and 
+      group 4 as "consumpt" and 
+      group 5 as "export_t" and 
+      group 6 as "import_t"
+  from
+    Countries countries,
+    Capitals capitals,
+    "Electricity.Production" products,
+    "Electricity.Consumption" consumpts,
+    "Electricity.Export" exports,
+    "Electricity.Import" imports;
+output view __Base__Main__Answ__Temp;
+

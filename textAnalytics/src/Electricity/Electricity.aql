@@ -1,0 +1,26 @@
+module Electricity; 
+
+create view Production as
+extract regex /Electricity - production: {1,}((\d{1,}([.,]\d{1,})* \w+)|NA)/ on Doc.text
+	return group 1 as product
+from Document Doc;
+
+create view Consumption as
+extract regex /Electricity - consumption: {1,}((\d{1,}([.,]\d{1,})* \w+)|NA)/ on Doc.text
+	return group 1 as consumpt
+from Document Doc;
+
+create view Export as
+extract regex /Electricity - exports: {1,}(\d{1,}([.,]\d{1,})*( \w+)? kWh)/ on Doc.text
+	return group 1 as export_t
+from Document Doc;
+
+create view Import as
+extract regex /Electricity - imports: {1,}(\d{1,}([.,]\d{1,})*( \w+)? kWh)/ on Doc.text
+	return group 1 as import_t
+from Document Doc;
+
+export view Production;
+export view Consumption;
+export view Export;
+export view Import;

@@ -1,0 +1,83 @@
+module Electricity;
+
+
+create view Production as
+  extract
+    AutoID() as __auto__id,
+    'STMT_TYPE_EXTRACT_REGEX' as __stmt__type,
+    -1 as Document_____sep_____Doc____id,
+    regex
+      /Electricity - production: {1,}((\d{1,}([.,]\d{1,})* \w+)|NA)/
+    with flags 
+      'DOTALL'
+    on Doc.text
+    return
+    group 1 as product
+
+  from
+    Document Doc;
+output view Production;
+
+create view Consumption as
+  extract
+    AutoID() as __auto__id,
+    'STMT_TYPE_EXTRACT_REGEX' as __stmt__type,
+    -1 as Document_____sep_____Doc____id,
+    regex
+      /Electricity - consumption: {1,}((\d{1,}([.,]\d{1,})* \w+)|NA)/
+    with flags 
+      'DOTALL'
+    on Doc.text
+    return
+    group 1 as consumpt
+
+  from
+    Document Doc;
+output view Consumption;
+
+create view Export as
+  extract
+    AutoID() as __auto__id,
+    'STMT_TYPE_EXTRACT_REGEX' as __stmt__type,
+    -1 as Document_____sep_____Doc____id,
+    regex
+      /Electricity - exports: {1,}(\d{1,}([.,]\d{1,})*( \w+)? kWh)/
+    with flags 
+      'DOTALL'
+    on Doc.text
+    return
+    group 1 as export_t
+
+  from
+    Document Doc;
+output view Export;
+
+create view Import as
+  extract
+    AutoID() as __auto__id,
+    'STMT_TYPE_EXTRACT_REGEX' as __stmt__type,
+    -1 as Document_____sep_____Doc____id,
+    regex
+      /Electricity - imports: {1,}(\d{1,}([.,]\d{1,})*( \w+)? kWh)/
+    with flags 
+      'DOTALL'
+    on Doc.text
+    return
+    group 1 as import_t
+
+  from
+    Document Doc;
+output view Import;
+
+export view Electricity.Production;
+
+
+export view Electricity.Consumption;
+
+
+export view Electricity.Export;
+
+
+export view Electricity.Import;
+
+
